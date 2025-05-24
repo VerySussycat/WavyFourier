@@ -1,4 +1,4 @@
-from manim import * #Import everything from 
+from manim import * #Import everything from manim
 import numpy as np
 vel=0
 class Blockonspring(Scene):#Kuch hai
