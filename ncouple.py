@@ -1,51 +1,51 @@
 from manim import *
 import numpy as np
 
-class NormalModeGraphs(Scene):
+class GeneralNormalModes(Scene):
     def construct(self):
-        # Time tracker
+        N = 5  # Number of oscillators
+        A = 1  # Amplitude
+        spacing = 1.5  # Distance between oscillators
+        omega_base = 1  # Base frequency
         t = ValueTracker(0)
 
-        # Axis
-        axis = NumberLine(x_range=[-3, 3], length=6, include_ticks=True)
+        # Initialize mode counter
+        self.current_mode = 0
+
+        # Create oscillator dots
+        dots = VGroup()
+        for i in range(N):
+            dot = Dot().move_to([spacing * (i - (N - 1) / 2), 0, 0])
+            dots.add(dot)
+        self.add(dots)
+
+        # Axes line
+        axis = NumberLine(x_range=[-N, N], length=spacing * (N + 1), include_ticks=False).move_to([0, 0, 0])
         self.add(axis)
 
-        # Mass points
-        dot1 = Dot(color=BLUE).move_to([-2, 0, 0])
-        dot2 = Dot(color=RED).move_to([2, 0, 0])
-        self.add(dot1, dot2)
+        # Label for mode
+        label = always_redraw(lambda: Text(f"Mode {self.current_mode + 1}", font_size=36).to_edge(UP))
+        self.add(label)
 
-        # Parameters
-        A = 1
-        omega1 = 1
-        omega2 = np.sqrt(3)
+        # Show normal modes
+        for mode in range(N):
+            self.current_mode = mode
+            omega_n = 2 * omega_base * np.sin((mode + 1) * np.pi / (2 * (N + 1)))
 
-        # Labels
-        label1 = Text("Mode 1: In-phase", font_size=36).to_edge(UP)
-        label2 = Text("Mode 2: Out-of-phase", font_size=36).to_edge(UP)
+            # Add updaters to each dot
+            for i, dot in enumerate(dots):
+                def make_updater(i=i, mode=mode, omega_n=omega_n):
+                    def updater(mob):
+                        x = spacing * (i - (N - 1) / 2)
+                        displacement = A * np.sin((i + 1) * (mode + 1) * np.pi / (N + 1)) * np.sin(omega_n * t.get_value())
+                        mob.move_to([x, displacement, 0])
+                    return updater
+                dot.add_updater(make_updater())
 
-        # === MODE 1 ===
-        def update_mode1(mob, i):
-            x = A * np.sin(omega1 * t.get_value())
-            original_x = -2 if i == 0 else 2
-            mob.move_to([original_x + x, 0, 0])
+            self.play(t.animate.set_value(2 * np.pi), run_time=5, rate_func=linear)
+            self.wait(0.5)
+            t.set_value(0)
 
-        dot1.add_updater(lambda m: update_mode1(m, 0))
-        dot2.add_updater(lambda m: update_mode1(m, 1))
-
-        self.play(Write(label1))
-        self.play(t.animate.set_value(2 * np.pi), run_time=6, rate_func=linear)
-        self.wait()
-        self.remove(label1)
-        dot1.clear_updaters()
-        dot2.clear_updaters()
-
-        # === MODE 2 ===
-        t.set_value(0)
-        dot1.add_updater(lambda m: dot1.move_to([-2 + A * np.sin(omega2 * t.get_value()), 0, 0]))
-        dot2.add_updater(lambda m: dot2.move_to([2 - A * np.sin(omega2 * t.get_value()), 0, 0]))
-
-        self.play(Write(label2))
-        self.play(t.animate.set_value(2 * np.pi), run_time=6, rate_func=linear)
-        self.wait()
-#Animating n coupled oscillators and their normal modes
+            # Remove updaters
+            for dot in dots:
+                dot.clear_updaters()
