@@ -1,1 +1,11 @@
+Scene 1(Intro) (text and voiceover):
+#To be done
 
+Scene 1(Intro) animation:
+
+#To be done
+
+Scene 2(Introduction to harmonic oscillators) (text and voiceover):
+
+    A harmonic oscillator is defined as a system that experiences a restoring force proportional to its displacement from the equilibrium position.
+A good way to visualize concretely such a system is a block attached to a spring.In a realistic scenario of course there would be 
